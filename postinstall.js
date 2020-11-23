@@ -26,6 +26,10 @@ var arch = process.env.ARCH || os.arch()
 //     break
 // }
 
+if (process.env.DONT_COMPILE) {
+  process.exit(0)
+}
+
 if (process.env.PLATFORM_NAME === 'iphoneos') {
   buildIOS()
 } else {

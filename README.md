@@ -17,6 +17,7 @@ The changes made from sodium-native to sodium-native-nodejs-mobile are:
 - Using `bindings` instead of `node-gyp-build` to load the native bindings
 - Does not support other operating systems other than Android and iOS
 - We patch the build script for iOS, to exclude Simulator architectures and armv7
+- If env var `DONT_COMPILE` is set, this package will not be built upon `npm install`
 
 ## Versioning
 
