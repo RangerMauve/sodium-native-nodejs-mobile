@@ -1,51 +1,28 @@
-# sodium-native
-[![build status](https://travis-ci.org/sodium-friends/sodium-native.svg?branch=master)](https://travis-ci.org/sodium-friends/sodium-native)
+# sodium-native-nodejs-mobile
 
-Low level bindings for [libsodium](https://github.com/jedisct1/libsodium).
+This is a fork of [sodium-native](https://github.com/sodium-friends/sodium-native) specifically meant to work with [nodejs-mobile](https://github.com/janeasystems/nodejs-mobile) only, by cross-compiling to targets such as Android arm and Android arm64 and iOS arm64.
 
-```
-npm install sodium-native
-```
+## Supports
 
-The goal of this project is to be thin, stable, unopionated wrapper around libsodium.
+- Version 3.2.0
+- Android
+- iOS
 
-All methods exposed are more or less a direct translation of the libsodium c-api.
-This means that most data types are buffers and you have to manage allocating return values and passing them in as arguments intead of receiving them as return values.
+## Diff
 
-This makes this API harder to use than other libsodium wrappers out there, but also means that you'll be able to get a lot of perf / memory improvements as you can do stuff like inline encryption / decryption, re-use buffers etc.
+The changes made from sodium-native to sodium-native-nodejs-mobile are:
 
-This also makes this library useful as a foundation for more high level crypto abstractions that you want to make.
+- No prebuilds, it cross-compiles to Android and/or iOS upon npm install
+- Use `configure-mobile` instead of `configure`
+- Using `bindings` instead of `node-gyp-build` to load the native bindings
+- Does not support other operating systems other than Android and iOS
+- We patch the build script for iOS, to exclude Simulator architectures and armv7
+- If env var `DONT_COMPILE` is set, this package will not be built upon `npm install`
 
-## Usage
+## Versioning
 
-``` js
-var sodium = require('sodium-native')
+We will follow the convention of having the same SemVer code as the official sodium-native, but with a suffix `-X` (where `X` is a number). For instance, `sodium-native-nodejs-mobile@2.4.2-3` is the `3`rd version of this library that is equivalent to `sodium-native@2.4.2`.
 
-var nonce = Buffer.alloc(sodium.crypto_secretbox_NONCEBYTES)
-var key = sodium.sodium_malloc(sodium.crypto_secretbox_KEYBYTES) // secure buffer
-var message = Buffer.from('Hello, World!')
-var ciphertext = Buffer.alloc(message.length + sodium.crypto_secretbox_MACBYTES)
-
-sodium.randombytes_buf(nonce) // insert random data into nonce
-sodium.randombytes_buf(key)  // insert random data into key
-
-// encrypted message is stored in ciphertext.
-sodium.crypto_secretbox_easy(ciphertext, message, nonce, key)
-
-console.log('Encrypted message:', ciphertext)
-
-var plainText = Buffer.alloc(ciphertext.length - sodium.crypto_secretbox_MACBYTES)
-
-if (!sodium.crypto_secretbox_open_easy(plainText, ciphertext, nonce, key)) {
-  console.log('Decryption failed!')
-} else {
-  console.log('Decrypted message:', plainText, '(' + plainText.toString() + ')')
-}
-```
-
-## Documentation
-
-Complete documentation may be found on the [sodium-friends website](https://sodium-friends.github.io/docs/docs/getstarted)
 
 ## License
 
