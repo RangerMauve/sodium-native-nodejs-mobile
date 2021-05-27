@@ -1,14 +1,10 @@
-sudo: false
-
 language: node_js
 node_js:
   - node
   - lts/*
+  - '13'
   - '12'
   - '10'
-  - '8'
-  - '6'
-  - '4'
 
 os:
   - osx
@@ -24,9 +20,12 @@ addons:
     packages:
     - g++-7
 
+cache:
+  npm: false
+
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CC=gcc-7 && CXX=g++-7; fi
-  - npm run fetch-libsodium
+  - if ! [[ "$TRAVIS_OS_NAME" == "windows" ]]; then npm run fetch-libsodium; fi
 
 before_deploy:
   - ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$TRAVIS_OS_NAME-`uname -m`.tar"
@@ -44,4 +43,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    node: 'lts/*'
+    node: 'node'

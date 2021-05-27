@@ -4,7 +4,7 @@ This is a fork of [sodium-native](https://github.com/sodium-friends/sodium-nativ
 
 ## Supports
 
-- Version 2.4.2
+- Version 3.2.0
 - Android
 - iOS
 

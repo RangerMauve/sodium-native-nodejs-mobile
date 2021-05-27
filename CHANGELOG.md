@@ -2,6 +2,72 @@
 
 ## Current
 
+## v3.2.0
+* Add missing `napi` prototype for Node v10
+* Make "missing" checks behave like Javascript (`x == null`)
+* Typo in error message (Thanks @christianbundy)
+* Add missing `crypto_stream_xchacha20_*` `crypto_stream_salsa20_*` APIs
+
+## v3.1.1
+
+* Bump `prebuildify`. Electron no longer needs a custom napi build
+
+## v3.1.0
+
+* Add explicit `sodium.sodium_free(buf)` to free the memory backed by a secure
+buffer. This uses the detach semantics known from `.transfer` in the browser and
+from Node worker threads. This is a no-op on older versions of Node and is
+currently pending backporting to Node 10.x
+* External memory book-keeping. For every secure buffer we now increment the
+external memory of node by 16 kb to better hint the garbage collector about the
+true consumption of secure buffers. This is not exactly representative if more
+than a page of system memory is allocated by the user nor if the system page
+size is not 4kb.
+* Throw an exception of `sodium_malloc` returns a NULL pointer (eg unable to
+allocate secure memory).
+* Expose new APIs and associated constants: `crypto_stream_chacha20`,
+`crypto_stream_chacha20_ietf`, `crypto_aead_chacha20`, `crypto_aead_chacha20_ietf`,
+* Expose `crypto_aead_xchacha20poly1305_ietf_MESSAGEBYTES_MAX`, `crypto_aead_chacha20poly1305_ietf_MESSAGEBYTES_MAX` and `crypto_aead_chacha20poly1305_MESSAGEBYTES_MAX` as `BigInt`s
+
+## v3.0.1
+
+* Fixed an issue that caused an assert error if an async callback threw an exception.
+
+## v3.0.0
+
+* Updated to use n-api (@chm-diederichs).
+* Removed object instance apis and replaced them with init, update, final methods.
+* Bumped dev dependencies.
+* Bumped libsodium to 1.0.18.
+
+## v2.4.10
+
+* Prebuilds for Electron 8
+
+## v2.4.9
+
+* Downgrades npm on travis to 6.11.x as we cannot build prebuilds with node-gyp@5.0.5. Can be upgraded again when npm ships node-gyp@6.
+
+## v2.4.8
+
+* Removing Node 4 and 6 from Travis as the config does not work there. We still build for 4 and 6 though.
+
+## v2.4.7
+
+* Prebuilds for Node 13 and new Electron
+
+## v2.4.6
+
+* Prebuildify fixes
+
+## v2.4.5
+
+* node-gyp-build was accidentally added as a dev dependency.
+
+## v2.4.4
+
+* Fix issue with node-gyp using the node 6.0.0 headers for electron 6.0.0 when prebuilding
+
 ## v2.4.3
 
 * Add Node 12 and Electron 5 support (thanks @davedoesdev)

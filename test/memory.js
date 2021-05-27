@@ -2,6 +2,53 @@ var tape = require('tape')
 var sodium = require('../')
 var fork = require('child_process').fork
 
+tape('sodium_mprotect_noaccess', function (t) {
+  t.plan(1)
+  var p = fork(require.resolve('./fixtures/mprotect_noaccess'))
+
+  p.on('message', function () {
+    t.fail()
+  })
+  p.on('exit', function (code, signal) {
+    t.ok(p.signalCode !== null || p.exitCode > 0)
+  })
+})
+
+tape('sodium_mprotect_readonly', function (t) {
+  t.plan(2)
+  var p = fork(require.resolve('./fixtures/mprotect_readonly'))
+
+  p.on('message', function (msg) {
+    t.ok(msg === 'read')
+  })
+  p.on('exit', function (code, signal) {
+    t.ok(p.signalCode !== null || p.exitCode > 0)
+  })
+})
+
+tape('sodium_mprotect_readwrite', function (t) {
+  t.plan(4)
+  var p = fork(require.resolve('./fixtures/mprotect_readwrite'))
+
+  p.on('message', function (msg) {
+    switch (msg) {
+      case 'read': t.pass()
+        break
+      case 'write': t.pass()
+        break
+      case 'did_write': t.pass()
+        break
+      case 'did_not_write': t.fail()
+        break
+      default: t.fail()
+        break
+    }
+  })
+  p.on('exit', function (code, signal) {
+    t.ok(p.signalCode === null || p.exitCode === 0)
+  })
+})
+
 tape('sodium_memzero', function (t) {
   var buf = Buffer.alloc(10, 0xab)
   var exp = Buffer.alloc(10, 0xab)
@@ -67,7 +114,20 @@ tape('sodium_malloc .secure read-only', function (t) {
   t.end()
 })
 
-tape('sodium_malloc bounds', function (t) {
+tape('sodium_free', function (t) {
+  if (process.version.startsWith('v10')) {
+    t.comment('Skipping free test on v10')
+    t.end()
+    return
+  }
+  var buf = sodium.sodium_malloc(1)
+  t.ok(buf.byteLength === 1)
+  sodium.sodium_free(buf)
+  t.ok(buf.byteLength === 0)
+  t.end()
+})
+
+tape.skip('sodium_malloc bounds', function (t) {
   t.throws(function () {
     sodium.sodium_malloc(-1)
   }, 'too small')
@@ -75,51 +135,4 @@ tape('sodium_malloc bounds', function (t) {
     sodium.sodium_malloc(Number.MAX_SAFE_INTEGER)
   }, 'too large')
   t.end()
-})
-
-tape('sodium_mprotect_noaccess', function (t) {
-  t.plan(1)
-  var p = fork(require.resolve('./fixtures/mprotect_noaccess'))
-
-  p.on('message', function () {
-    t.fail()
-  })
-  p.on('exit', function (code, signal) {
-    t.ok(p.signalCode !== null || p.exitCode > 0)
-  })
-})
-
-tape('sodium_mprotect_readonly', function (t) {
-  t.plan(2)
-  var p = fork(require.resolve('./fixtures/mprotect_readonly'))
-
-  p.on('message', function (msg) {
-    t.ok(msg === 'read')
-  })
-  p.on('exit', function (code, signal) {
-    t.ok(p.signalCode !== null || p.exitCode > 0)
-  })
-})
-
-tape('sodium_mprotect_readwrite', function (t) {
-  t.plan(4)
-  var p = fork(require.resolve('./fixtures/mprotect_readwrite'))
-
-  p.on('message', function (msg) {
-    switch (msg) {
-      case 'read': t.pass()
-        break
-      case 'write': t.pass()
-        break
-      case 'did_write': t.pass()
-        break
-      case 'did_not_write': t.fail()
-        break
-      default: t.fail()
-        break
-    }
-  })
-  p.on('exit', function (code, signal) {
-    t.ok(p.signalCode === null || p.exitCode === 0)
-  })
 })
