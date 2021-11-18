@@ -30,7 +30,8 @@ if (process.env.DONT_COMPILE) {
   process.exit(0)
 }
 
-if (process.env.PLATFORM_NAME === 'iphoneos') {
+var PLATFORM_NAME = process.env.PLATFORM_NAME
+if (PLATFORM_NAME === 'iphoneos' || PLATFORM_NAME === 'iphonesimulator') {
   buildIOS()
 } else {
   buildAndroid('arm', () => {
